@@ -19,20 +19,21 @@ void Restaurant::RunSimulation()
 	PROG_MODE	mode = pGUI->getGUIMode();
 	
 		LoadFile();
-		
+		int currenttimestep=1;
 		int x=1; // a variable to know after 5 time steps
 	switch (mode)	//Add a function for each mode in next phases
 	{
 	case MODE_INTR:
-				for(int i=0;i<20;i++){
-			while(EventsQueue.getPtrToFront()->getItem()->getEventTime()==i){//while the event time=the current time step
+		while(!(EventsQueue.isEmpty())){
+			while(EventsQueue.getPtrToFront()->getItem()->getEventTime()==currenttimestep){//while the event time=the current time step
 				ArrivalEvent *p=dynamic_cast<ArrivalEvent*>(EventsQueue.getPtrToFront()->getItem());
+				Cancellation_event *c=dynamic_cast<Cancellation_event*>(EventsQueue.getPtrToFront()->getItem());
 				if(p){    //if it is an arrival event
 					p->Execute(this); //generate an order and add it to the appropriate waiting list
-				}else if((Cancellation_event*)EventsQueue.getPtrToFront()->getItem()){    //if it is a cancellation event
+				}else if(c){    //if it is a cancellation event
 					if(!(normalorder.isEmpty())){
 						                                // delete the corresponding normal order if found
-                    
+                                                          //not implemented yet
 				}
 				}
 				Event *u=EventsQueue.getPtrToFront()->getItem();
@@ -49,7 +50,7 @@ void Restaurant::RunSimulation()
 			Order *w=normalorder.getPtrToFront()->getItem();
 			normalorder.dequeue(w);
 			Inservicelist.InsertEnd(w);
-			if(i==(5*x)){ //each 5 time steps pick one order from each type from inservice list to finished list
+			if(currenttimestep==((5*x)+1)){ //each 5 time steps pick one order from each type from inservice list to finished list
 				Order*e=Inservicelist.getHead()->getItem(); //the first order putted in inservice list which is a vip order
 				Finishedlist.InsertEnd(e);
 				Inservicelist.DeleteFirst(); //pick this order from in service list
@@ -72,10 +73,13 @@ void Restaurant::RunSimulation()
 			this->FillDrawingList();
 		
 				pGUI->UpdateInterface();
+				currenttimestep++;
 		}
-		
+	
 		break;
-	case MODE_STEP:
+	case MODE_STEP:/*the difference between this mode and interactive mode that in interactive mode program wait for a mouse click then
+		             it display the info but here it will wait for one sec then it display
+					 */
 		break;
 	case MODE_SLNT:
 		break;
